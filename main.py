@@ -12,6 +12,8 @@ grades = {
   'Quiz': 1.0
 }
 
+q = 1
+
 def utils_isfloat(str):
   try:
     float(str)
@@ -69,8 +71,8 @@ def category_modify(args):
     if args[1] not in categories or args[1] not in grades:
       print('Error: There is no category with title "' + str(args[1]) + '".')
       return False
-    categories[args[1]] = args[3]
-    grades[args[1]] = args[3]
+    categories[args[3]] = categories.pop(args[1])
+    grades[args[3]] = grades.pop(args[1])
     return True
 
 def put_grades(args):
@@ -85,19 +87,81 @@ def put_grades(args):
     print('Error: There is no category with title "' + str(args[1]) + '".')
     return False
   grades[args[1]] = sum(g) / len(g)
-  print(grades[args[1]])
+  print('Put grade ' + str(grades[args[1]]) + ' in ' + args[1] + '.')
   return True
+
+def quarter(args):
+  if not args[1].isdigit():
+    print('Error: Please input a number.')
+    return False
+  q = int(args[1])
+  return True
+  
+def total_grade(args):
+  for key, value in categories.items():
+    print(key + ' Weight: ' + str(value))
+  
+  print('\n')
+  
+  for key, value in grades.items():
+    print(key + ' Grade: ' + str(value))
+  
+  weighted_grades = []
+  for key, value in grades.items():
+    weighted_grades.append(value * categories[key])
+  
+  final_grade = sum(weighted_grades)
+  print('Final Quarter ' + str(q) + ' Grade: ' + str(final_grade))
+
+def cmd_help():
+  print('Commands:\n')
+  print('add [weight] [category name]: add a new category\n')
+  print('modify [category name] [mode (weight or name)] [value]: modify the name or weight of a category\n')
+  print('put [category] [...grades...]: puts in the grades for a given category. Any amount of grades can be inputted.\n')
+  print('quarter [number]: changes what quarter the grades are for.\n')
+  print('grades: print the final grades and weights.\n')
+  print('help: display all commands\n')
+  print('stop: exit program\n')
+  
+def stop():
+  print('Goodbye!')
+  quit()
+  
 
 def process_command(args):
   cmd = args[0]
+  print(cmd)
   if cmd == 'add':
     category_add(args)
+    return
   if cmd == 'modify':
     category_modify(args)
-  if cmd == 'put_grade':
+    return
+  if cmd == 'put':
     put_grades(args)
+    return
+  if cmd == 'quarter':
+    quarter(args)
+    return
+  if cmd == 'grades':
+    total_grade(args)
+    return
+  if cmd == 'help':
+    cmd_help()
+    return
+  if cmd == 'stop':
+    stop()
+    return
+  else:
+    print('Unknown command: "' + cmd + '" is undefined.')
 
-process_command(['grade', 'Participation', 1.0, 0.5, 0.8, 0.2, 1.0, 1.0, 1.0, 1.0])
-#process_command(['add', '1.0', 'Exam'])
-#print('\n\n\n')
-#process_command(['modify', 'Exam', 'weight', '0.2'])
+def main():
+  print('====Command Line Grader====')
+  print('Type "help" if you need it!')
+  print('===========================')
+  while True: # This is ok because there is a stop command to manually exit
+    raw_in = input('>>')
+    process_command(raw_in.split())
+
+if __name__ == '__main__':
+    main()
